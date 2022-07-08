@@ -35,6 +35,7 @@ android {
 }
 
 dependencies {
+    implementation project(":utils")
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.2'
@@ -60,4 +61,31 @@ dependencies {
     implementation "androidx.navigation:navigation-dynamic-features-fragment:$nav_version"
     // Testing Navigation
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
+
+    // COROUTINES
+    def coroutines_version = "1.6.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
+
+    // RETROFIT
+    def retrofit_version = "2.9.0"
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    // Jackson converter for Retrofit
+    implementation "com.squareup.retrofit2:converter-jackson:$retrofit_version"
+    // GSON converter for Retrofit
+    def gson_version = "2.9.0"
+    implementation "com.google.code.gson:gson:$gson_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    // Moshi converter for Retrofit
+    implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
+    // Mock Retrofit
+    testImplementation "com.squareup.retrofit2:retrofit-mock:$retrofit_version"
+    // RxJava2 adapter for Retrofit
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofit_version"
+
+    // OKHTTP3
+    def okhttp_version = "4.10.0"
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+    // interceptor
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
 }

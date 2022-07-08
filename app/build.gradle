@@ -3,7 +3,6 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'kotlin-android'
-
     // add Safe Args Gradle Plugin
     id 'androidx.navigation.safeargs.kotlin'
 }
@@ -41,6 +40,7 @@ dependencies {
     // include other modules
     implementation project(":scanner-api")
     implementation project(":scanner-impl")
+    implementation project(":utils")
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.2'
@@ -68,4 +68,9 @@ dependencies {
     implementation "androidx.navigation:navigation-dynamic-features-fragment:$nav_version"
     // Testing Navigation
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
+
+    // COROUTINES
+    def coroutines_version = "1.6.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
 }

@@ -16,3 +16,6 @@ rootProject.name = "MultiOne"
 include ':app'
 include ':scanner-api'
 include ':scanner-impl'
+include ':network-api'
+include ':network-impl'
+include ':utils'
