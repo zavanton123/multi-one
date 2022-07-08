@@ -1,12 +1,13 @@
 package ru.zavanton.scanner_impl.di
 
-import android.app.Application
 import dagger.Component
 import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit
-import ru.zavanton.mylibrary.AppHolder
+import ru.zavanton.db_api.DbApi
+import ru.zavanton.db_api.DbApiProvider
 import ru.zavanton.mylibrary.PerFeature
+import ru.zavanton.mylibrary.UtilsComponentInjector
 import ru.zavanton.network_api.NetworkApi
 import ru.zavanton.network_api.NetworkApiProvider
 import ru.zavanton.scanner_api.ScannerApi
@@ -17,15 +18,18 @@ object ScannerComponentInjector {
 
     private var scannerComponent: ScannerComponent? = null
 
-    private val application: Application by lazy {
-        AppHolder.application
-    }
-
     fun getScannerComponent(): ScannerComponent {
-        val networkApiProvider = application as? NetworkApiProvider ?: throw Exception("Terrible")
+        // Get the dependencies from the App
+        val application = UtilsComponentInjector.utilsComponent.application()
+        val networkApiProvider = application as? NetworkApiProvider
+            ?: throw Exception("Must provide NetworkApi")
+        val dbApiProvider = application as? DbApiProvider
+            ?: throw Exception("Must provide DbApi")
+
         return DaggerScannerComponent
             .builder()
-            .networkApi(networkApiProvider.provide())
+            .networkApi(networkApiProvider.provideNetworkApi())
+            .dbApi(dbApiProvider.provideDbApi())
             .build()
             .apply {
                 scannerComponent = this
@@ -44,6 +48,7 @@ object ScannerComponentInjector {
     ],
     dependencies = [
         NetworkApi::class,
+        DbApi::class,
     ]
 )
 interface ScannerComponent : ScannerApi {

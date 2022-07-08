@@ -12,5 +12,5 @@ interface NetworkApi {
 
 interface NetworkApiProvider {
 
-    fun provide(): NetworkApi
+    fun provideNetworkApi(): NetworkApi
 }

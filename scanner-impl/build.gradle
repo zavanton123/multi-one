@@ -38,6 +38,7 @@ dependencies {
     // include other modules
     implementation project(":scanner-api")
     implementation project(":network-api")
+    implementation project(":db-api")
     implementation project(":utils")
 
     implementation 'androidx.core:core-ktx:1.7.0'
@@ -86,4 +87,7 @@ dependencies {
     // optional - Test helpers for LiveData
     testImplementation "androidx.arch.core:core-testing:$arch_version"
 
+    // ROOM
+    def room_version = "2.4.2"
+    kapt "androidx.room:room-compiler:$room_version"
 }
