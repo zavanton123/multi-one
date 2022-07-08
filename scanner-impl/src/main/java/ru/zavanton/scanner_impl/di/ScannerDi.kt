@@ -1,5 +1,6 @@
 package ru.zavanton.scanner_impl.di
 
+import android.app.Application
 import dagger.Component
 import dagger.Module
 import dagger.Provides
@@ -17,28 +18,41 @@ import ru.zavanton.scanner_impl.ui.ScannerFragment
 object ScannerComponentInjector {
 
     private var scannerComponent: ScannerComponent? = null
+    private var scannerDependencies: ScannerDependencies? = null
 
     fun getScannerComponent(): ScannerComponent {
-        // Get the dependencies from the App
-        val application = UtilsComponentInjector.utilsComponent.application()
-        val networkApiProvider = application as? NetworkApiProvider
-            ?: throw Exception("Must provide NetworkApi")
-        val dbApiProvider = application as? DbApiProvider
-            ?: throw Exception("Must provide DbApi")
-
-        return DaggerScannerComponent
-            .builder()
-            .networkApi(networkApiProvider.provideNetworkApi())
-            .dbApi(dbApiProvider.provideDbApi())
-            .build()
-            .apply {
-                scannerComponent = this
-            }
+        return scannerComponent ?: DaggerScannerComponent
+            .factory()
+            .create(getScannerDependencies())
+            .apply { scannerComponent = this }
     }
 
     fun clear() {
         scannerComponent = null
     }
+
+    private fun getScannerDependencies(): ScannerDependencies {
+        return scannerDependencies
+            ?: UtilsComponentInjector.utilsComponent.application()
+                .let { application ->
+                    DaggerScannerDependenciesComponent.builder()
+                        .networkApi(getNetworkApi(application))
+                        .dbApi(getDbApi(application))
+                        .build()
+                        .apply { scannerDependencies = this }
+                }
+    }
+
+    // Get the dependencies from the App
+    private fun getDbApi(application: Application): DbApi {
+        return (application as? DbApiProvider ?: throw Exception("Must provide DbApi"))
+            .provideDbApi()
+    }
+
+    // Get the dependencies from the App
+    private fun getNetworkApi(application: Application) =
+        (application as? NetworkApiProvider ?: throw Exception("Must provide NetworkApi"))
+            .provideNetworkApi()
 }
 
 @PerFeature
@@ -47,14 +61,28 @@ object ScannerComponentInjector {
         ScannerNetworkServiceModule::class,
     ],
     dependencies = [
-        NetworkApi::class,
-        DbApi::class,
+        ScannerDependencies::class,
     ]
 )
 interface ScannerComponent : ScannerApi {
 
+    @Component.Factory
+    interface Factory {
+
+        fun create(scannerDependencies: ScannerDependencies): ScannerComponent
+    }
+
     fun inject(scannerFragment: ScannerFragment)
 }
+
+@PerFeature
+@Component(
+    dependencies = [
+        NetworkApi::class,
+        DbApi::class,
+    ]
+)
+interface ScannerDependenciesComponent : ScannerDependencies
 
 @Module
 class ScannerNetworkServiceModule {
