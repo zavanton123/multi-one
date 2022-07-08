@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/scannerFragment"
-        android:name="ru.zavanton.scanner_impl.ScannerFragment"
+        android:name="ru.zavanton.scanner_impl.ui.ScannerFragment"
         android:label="ScannerFragment"
         />
 </navigation>

@@ -9,3 +9,8 @@ interface NetworkApi {
 
     fun okHttpClient(): OkHttpClient
 }
+
+interface NetworkApiProvider {
+
+    fun provide(): NetworkApi
+}

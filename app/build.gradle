@@ -40,6 +40,8 @@ dependencies {
     // include other modules
     implementation project(":scanner-api")
     implementation project(":scanner-impl")
+    implementation project(":network-api")
+    implementation project(":network-impl")
     implementation project(":utils")
 
     implementation 'androidx.core:core-ktx:1.7.0'
