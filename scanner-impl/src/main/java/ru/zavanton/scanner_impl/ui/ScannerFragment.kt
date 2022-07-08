@@ -23,7 +23,7 @@ class ScannerFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         ScannerComponentInjector
-            .getScannerComponent(requireActivity().application)
+            .getScannerComponent()
             .inject(this)
     }
 

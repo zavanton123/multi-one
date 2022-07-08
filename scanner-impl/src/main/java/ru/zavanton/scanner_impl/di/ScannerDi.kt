@@ -5,6 +5,7 @@ import dagger.Component
 import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit
+import ru.zavanton.mylibrary.AppHolder
 import ru.zavanton.mylibrary.PerFeature
 import ru.zavanton.network_api.NetworkApi
 import ru.zavanton.network_api.NetworkApiProvider
@@ -16,8 +17,12 @@ object ScannerComponentInjector {
 
     private var scannerComponent: ScannerComponent? = null
 
-    fun getScannerComponent(app: Application): ScannerComponent {
-        val networkApiProvider = app as? NetworkApiProvider ?: throw Exception("Terrible")
+    private val application: Application by lazy {
+        AppHolder.application
+    }
+
+    fun getScannerComponent(): ScannerComponent {
+        val networkApiProvider = application as? NetworkApiProvider ?: throw Exception("Terrible")
         return DaggerScannerComponent
             .builder()
             .networkApi(networkApiProvider.provide())
