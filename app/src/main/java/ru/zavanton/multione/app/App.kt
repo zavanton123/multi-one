@@ -38,10 +38,10 @@ class App : Application(),
     }
 
     override fun provideAccountOutputDependencies(): AccountOutputDependencies {
-        return AccountComponentInjector.getAccountComponent()
+        return AccountComponentInjector.getAccountOutputDependencies()
     }
 
     override fun provideTransactionOutputDependencies(): TransactionOutputDependencies {
-        return TransactionComponentInjector.getTransactionComponent()
+        return TransactionComponentInjector.getTransactionOutputDependencies()
     }
 }

@@ -11,7 +11,6 @@ import ru.zavanton.accounts_impl.domain.AccountInteractor
 import ru.zavanton.accounts_impl.ui.AccountFragment
 import ru.zavanton.mylibrary.PerFeature
 import ru.zavanton.mylibrary.UtilsComponentInjector
-import ru.zavanton.transactions_api.ITransactionInteractor
 import ru.zavanton.transactions_api.ITransactionRepository
 import ru.zavanton.transactions_api.di.TransactionOutputDependencies
 import ru.zavanton.transactions_api.di.TransactionOutputDependenciesProvider
@@ -19,19 +18,26 @@ import ru.zavanton.transactions_api.di.TransactionOutputDependenciesProvider
 interface AccountInputDependencies {
 
     fun transactionRepository(): ITransactionRepository
-
-    fun transactionInteractor(): ITransactionInteractor
 }
 
 object AccountComponentInjector {
     private var accountComponent: AccountComponent? = null
     private var accountInputComponent: AccountInputComponent? = null
+    private var accountOutputComponent: AccountOutputComponent? = null
+
+    fun getAccountOutputDependencies(): AccountOutputDependencies {
+        return accountOutputComponent
+            ?: DaggerAccountOutputComponent
+                .create()
+                .apply { accountOutputComponent = this }
+    }
 
     fun getAccountComponent(): AccountComponent {
         return accountComponent
             ?: DaggerAccountComponent
                 .builder()
                 .accountInputDependencies(getAccountInput())
+                .accountOutputDependencies(getAccountOutputDependencies())
                 .build()
                 .apply {
                     accountComponent = this
@@ -41,9 +47,10 @@ object AccountComponentInjector {
     fun clear() {
         accountComponent = null
         accountInputComponent = null
+        accountOutputComponent = null
     }
 
-    private fun getAccountInput(): AccountInputComponent? {
+    private fun getAccountInput(): AccountInputDependencies {
         val application = UtilsComponentInjector.utilsComponent.application()
 
         val provider = application as? TransactionOutputDependenciesProvider
@@ -63,16 +70,25 @@ object AccountComponentInjector {
 @PerFeature
 @Component(
     modules = [
-        AccountsModule::class,
+        AccountsInteractorModule::class
     ],
     dependencies = [
+        AccountOutputDependencies::class,
         AccountInputDependencies::class,
     ]
 )
-interface AccountComponent : AccountOutputDependencies {
+interface AccountComponent {
 
     fun inject(accountFragment: AccountFragment)
 }
+
+@PerFeature
+@Component(
+    modules = [
+        AccountsRepositoryModule::class
+    ]
+)
+interface AccountOutputComponent : AccountOutputDependencies
 
 @PerFeature
 @Component(
@@ -83,13 +99,17 @@ interface AccountComponent : AccountOutputDependencies {
 interface AccountInputComponent : AccountInputDependencies
 
 @Module
-interface AccountsModule {
-
-    @PerFeature
-    @Binds
-    fun bindInteractor(impl: AccountInteractor): IAccountInteractor
+interface AccountsRepositoryModule {
 
     @PerFeature
     @Binds
     fun bindRepository(impl: AccountRepository): IAccountRepository
+}
+
+@Module
+interface AccountsInteractorModule {
+
+    @PerFeature
+    @Binds
+    fun bindInteractor(impl: AccountInteractor): IAccountInteractor
 }

@@ -1,6 +1,5 @@
 package ru.zavanton.accounts_impl.domain
 
-import android.util.Log
 import ru.zavanton.accounts_api.data.IAccountRepository
 import ru.zavanton.accounts_api.domain.IAccountInteractor
 import ru.zavanton.transactions_api.ITransactionRepository
@@ -14,10 +13,6 @@ class AccountInteractor @Inject constructor(
     override fun loadAccountInfo(id: Long): String {
         val accountInfo = accountRepository.fetchAccountInfo(id)
         val transactionInfo = transactionRepository.fetchTransactionInfo(id)
-
-        Log.d("zavanton", "zavanton - account -> $accountInfo")
-        Log.d("zavanton", "zavanton - account -> $transactionInfo")
-
         return "$accountInfo $transactionInfo"
     }
 }

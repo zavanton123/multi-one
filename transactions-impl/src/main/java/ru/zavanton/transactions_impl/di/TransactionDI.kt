@@ -6,9 +6,7 @@ import dagger.Module
 import ru.zavanton.accounts_api.data.IAccountRepository
 import ru.zavanton.accounts_api.di.AccountOutputDependencies
 import ru.zavanton.accounts_api.di.AccountOutputDependenciesProvider
-import ru.zavanton.accounts_api.domain.IAccountInteractor
 import ru.zavanton.mylibrary.PerFeature
-import ru.zavanton.mylibrary.PerScreen
 import ru.zavanton.mylibrary.UtilsComponentInjector
 import ru.zavanton.transactions_api.ITransactionInteractor
 import ru.zavanton.transactions_api.ITransactionRepository
@@ -19,30 +17,38 @@ import ru.zavanton.transactions_impl.ui.TransactionsFragment
 
 interface TransactionInputDependencies {
 
-    fun accountInteractor(): IAccountInteractor
-
     fun accountRepository(): IAccountRepository
 }
 
 object TransactionComponentInjector {
     private var transactionComponent: TransactionComponent? = null
     private var transactionInputComponent: TransactionInputComponent? = null
+    private var transactionOutputComponent: TransactionOutputComponent? = null
 
     fun getTransactionComponent(): TransactionComponent {
         return transactionComponent
             ?: DaggerTransactionComponent
                 .builder()
                 .transactionInputDependencies(getTransactionInputComponent())
+                .transactionOutputDependencies(getTransactionOutputDependencies())
                 .build()
                 .apply { transactionComponent = this }
+    }
+
+    fun getTransactionOutputDependencies(): TransactionOutputDependencies {
+        return transactionOutputComponent
+            ?: DaggerTransactionOutputComponent
+                .create()
+                .apply { transactionOutputComponent = this }
     }
 
     fun clear() {
         transactionComponent = null
         transactionInputComponent = null
+        transactionOutputComponent = null
     }
 
-    private fun getTransactionInputComponent(): TransactionInputComponent {
+    private fun getTransactionInputComponent(): TransactionInputDependencies {
         val application = UtilsComponentInjector.utilsComponent.application()
         val provider = application as? AccountOutputDependenciesProvider
             ?: throw Exception("App must implement AccountOutputDependenciesProvider")
@@ -58,18 +64,28 @@ object TransactionComponentInjector {
 @PerFeature
 @Component(
     modules = [
-        TransactionModule::class,
+        TransactionInteractorModule::class,
     ],
     dependencies = [
+        TransactionOutputDependencies::class,
         TransactionInputDependencies::class,
     ]
 )
-interface TransactionComponent : TransactionOutputDependencies {
+interface TransactionComponent {
 
     fun inject(transactionsFragment: TransactionsFragment)
 }
 
-@PerScreen
+@PerFeature
+@Component(
+    modules = [
+        TransactionRepositoryModule::class,
+    ]
+)
+interface TransactionOutputComponent : TransactionOutputDependencies
+
+
+@PerFeature
 @Component(
     dependencies = [
         AccountOutputDependencies::class,
@@ -78,11 +94,15 @@ interface TransactionComponent : TransactionOutputDependencies {
 interface TransactionInputComponent : TransactionInputDependencies
 
 @Module
-interface TransactionModule {
+interface TransactionRepositoryModule {
 
     @PerFeature
     @Binds
     fun bindRepository(impl: TransactionRepository): ITransactionRepository
+}
+
+@Module
+interface TransactionInteractorModule {
 
     @PerFeature
     @Binds
