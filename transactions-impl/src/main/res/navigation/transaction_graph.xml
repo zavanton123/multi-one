@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/transaction_graph"
+    app:startDestination="@id/transactionsFragment"
+    >
+
+    <deepLink app:uri="https://zavanton.ru/transactions" />
+
+    <fragment
+        android:id="@+id/transactionsFragment"
+        android:name="ru.zavanton.transactions_impl.TransactionsFragment"
+        android:label="TransactionsFragment"
+        tools:layout="@layout/fragment_transactions"
+        />
+
+</navigation>

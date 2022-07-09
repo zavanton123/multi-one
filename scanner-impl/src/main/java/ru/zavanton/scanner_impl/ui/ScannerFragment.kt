@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.NavDeepLinkRequest
 import androidx.navigation.fragment.findNavController
 import ru.zavanton.mylibrary.ACCOUNTS_SCREEN
+import ru.zavanton.mylibrary.TRANSACTIONS_SCREEN
 import ru.zavanton.scanner_impl.databinding.FragmentScannerBinding
 import ru.zavanton.scanner_impl.di.ScannerComponentInjector
 import javax.inject.Inject
@@ -46,7 +47,12 @@ class ScannerFragment : Fragment() {
         }
 
         binding.tvDemo.setOnLongClickListener {
-            viewModel.loadData()
+            val request = NavDeepLinkRequest.Builder
+                .fromUri(Uri.parse(TRANSACTIONS_SCREEN))
+                .build()
+            findNavController().navigate(request)
+
+            // viewModel.loadData()
             true
         }
 

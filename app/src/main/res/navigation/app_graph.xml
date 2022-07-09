@@ -10,4 +10,6 @@
 
     <include app:graph="@navigation/account_graph" />
 
+    <include app:graph="@navigation/transaction_graph" />
+
 </navigation>
