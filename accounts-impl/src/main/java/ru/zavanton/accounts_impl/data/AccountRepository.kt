@@ -6,6 +6,6 @@ import javax.inject.Inject
 class AccountRepository @Inject constructor() : IAccountRepository {
 
     override fun fetchAccountInfo(id: Long): String {
-        return "account repository info"
+        return "account info for id $id"
     }
 }

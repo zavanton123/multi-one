@@ -11,7 +11,7 @@
 
     <fragment
         android:id="@+id/transactionsFragment"
-        android:name="ru.zavanton.transactions_impl.TransactionsFragment"
+        android:name="ru.zavanton.transactions_impl.ui.TransactionsFragment"
         android:label="TransactionsFragment"
         tools:layout="@layout/fragment_transactions"
         />

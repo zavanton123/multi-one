@@ -11,10 +11,9 @@ import ru.zavanton.mylibrary.UtilsComponentInjector
 import ru.zavanton.network_api.NetworkApi
 import ru.zavanton.network_api.NetworkApiProvider
 import ru.zavanton.network_impl.NetworkComponentInjector
-import ru.zavanton.transactions_api.ITransactionInteractor
-import ru.zavanton.transactions_api.ITransactionRepository
 import ru.zavanton.transactions_api.di.TransactionOutputDependencies
 import ru.zavanton.transactions_api.di.TransactionOutputDependenciesProvider
+import ru.zavanton.transactions_impl.di.TransactionComponentInjector
 
 class App : Application(),
     NetworkApiProvider,
@@ -43,23 +42,6 @@ class App : Application(),
     }
 
     override fun provideTransactionOutputDependencies(): TransactionOutputDependencies {
-        // TODO - remove the mock
-        return object : TransactionOutputDependencies {
-            override fun transactionInteractor(): ITransactionInteractor {
-                return object : ITransactionInteractor {
-                    override fun loadTransactionInfo(id: Long): String {
-                        return "mocked transaction interactor"
-                    }
-                }
-            }
-
-            override fun transactionRepository(): ITransactionRepository {
-                return object : ITransactionRepository {
-                    override fun fetchTransactionInfo(id: Long): String {
-                        return "mocked transaction repository"
-                    }
-                }
-            }
-        }
+        return TransactionComponentInjector.getTransactionComponent()
     }
 }
