@@ -3,7 +3,7 @@ package ru.zavanton.network_api
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 
-interface NetworkApi {
+interface NetworkOutApi {
 
     fun retrofit(): Retrofit
 
@@ -12,5 +12,5 @@ interface NetworkApi {
 
 interface NetworkApiProvider {
 
-    fun provideNetworkApi(): NetworkApi
+    fun provideNetworkApi(): NetworkOutApi
 }

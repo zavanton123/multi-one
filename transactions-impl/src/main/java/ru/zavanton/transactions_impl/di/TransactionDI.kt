@@ -4,72 +4,76 @@ import dagger.Binds
 import dagger.Component
 import dagger.Module
 import ru.zavanton.accounts_api.data.IAccountRepository
-import ru.zavanton.accounts_api.di.AccountOutputDependencies
+import ru.zavanton.accounts_api.di.AccountOutApi
 import ru.zavanton.accounts_api.di.AccountOutputDependenciesProvider
 import ru.zavanton.mylibrary.PerFeature
 import ru.zavanton.mylibrary.UtilsComponentInjector
 import ru.zavanton.transactions_api.ITransactionInteractor
 import ru.zavanton.transactions_api.ITransactionRepository
-import ru.zavanton.transactions_api.di.TransactionOutputDependencies
+import ru.zavanton.transactions_api.di.TransactionOutApi
 import ru.zavanton.transactions_impl.data.TransactionRepository
 import ru.zavanton.transactions_impl.domain.TransactionInteractor
 import ru.zavanton.transactions_impl.ui.TransactionsFragment
 
-interface TransactionInputDependencies {
+interface TransactionInApi {
 
     fun accountRepository(): IAccountRepository
 }
 
 object TransactionComponentInjector {
     private var transactionComponent: TransactionComponent? = null
-    private var transactionInputComponent: TransactionInputComponent? = null
-    private var transactionOutputComponent: TransactionOutputComponent? = null
+    private var transactionInApiComponent: TransactionInApiComponent? = null
+    private var transactionOutApiComponent: TransactionOutApiComponent? = null
 
     fun getTransactionComponent(): TransactionComponent {
         return transactionComponent
             ?: DaggerTransactionComponent
                 .builder()
-                .transactionInputDependencies(getTransactionInputComponent())
-                .transactionOutputDependencies(getTransactionOutputDependencies())
+                .transactionInApi(getTransactionInApi())
+                .transactionOutApi(getTransactionOutApi())
                 .build()
                 .apply { transactionComponent = this }
     }
 
-    fun getTransactionOutputDependencies(): TransactionOutputDependencies {
-        return transactionOutputComponent
-            ?: DaggerTransactionOutputComponent
+    fun getTransactionOutApi(): TransactionOutApi {
+        return transactionOutApiComponent
+            ?: DaggerTransactionOutApiComponent
                 .create()
-                .apply { transactionOutputComponent = this }
+                .apply { transactionOutApiComponent = this }
     }
 
     fun clear() {
         transactionComponent = null
-        transactionInputComponent = null
-        transactionOutputComponent = null
+        transactionInApiComponent = null
+        transactionOutApiComponent = null
     }
 
-    private fun getTransactionInputComponent(): TransactionInputDependencies {
+    private fun getTransactionInApi(): TransactionInApi {
+        return transactionInApiComponent
+            ?: DaggerTransactionInApiComponent
+                .builder()
+                .accountOutApi(provideAccountOutApi())
+                .build()
+                .apply { transactionInApiComponent = this }
+    }
+
+    private fun provideAccountOutApi(): AccountOutApi {
         val application = UtilsComponentInjector.utilsComponent.application()
         val provider = application as? AccountOutputDependenciesProvider
             ?: throw Exception("App must implement AccountOutputDependenciesProvider")
-        return transactionInputComponent
-            ?: DaggerTransactionInputComponent
-                .builder()
-                .accountOutputDependencies(provider.provideAccountOutputDependencies())
-                .build()
-                .apply { transactionInputComponent = this }
+        return provider.provideAccountOutputDependencies()
     }
 }
 
 @PerFeature
 @Component(
+    dependencies = [
+        TransactionOutApi::class,
+        TransactionInApi::class,
+    ],
     modules = [
         TransactionInteractorModule::class,
     ],
-    dependencies = [
-        TransactionOutputDependencies::class,
-        TransactionInputDependencies::class,
-    ]
 )
 interface TransactionComponent {
 
@@ -82,16 +86,15 @@ interface TransactionComponent {
         TransactionRepositoryModule::class,
     ]
 )
-interface TransactionOutputComponent : TransactionOutputDependencies
-
+interface TransactionOutApiComponent : TransactionOutApi
 
 @PerFeature
 @Component(
     dependencies = [
-        AccountOutputDependencies::class,
+        AccountOutApi::class,
     ]
 )
-interface TransactionInputComponent : TransactionInputDependencies
+interface TransactionInApiComponent : TransactionInApi
 
 @Module
 interface TransactionRepositoryModule {

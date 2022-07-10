@@ -2,12 +2,12 @@ package ru.zavanton.accounts_api.di
 
 import ru.zavanton.accounts_api.data.IAccountRepository
 
-interface AccountOutputDependencies {
+interface AccountOutApi {
 
     fun accountRepository(): IAccountRepository
 }
 
 interface AccountOutputDependenciesProvider {
 
-    fun provideAccountOutputDependencies(): AccountOutputDependencies
+    fun provideAccountOutputDependencies(): AccountOutApi
 }

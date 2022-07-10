@@ -5,7 +5,7 @@ import androidx.room.Room
 import dagger.Component
 import dagger.Module
 import dagger.Provides
-import ru.zavanton.db_api.DbApi
+import ru.zavanton.db_api.DbOutApi
 import ru.zavanton.db_api.IAppDatabase
 import ru.zavanton.db_api.IAppDatabaseDao
 import ru.zavanton.mylibrary.AppContext
@@ -43,7 +43,7 @@ object DbComponentInjector {
         ApplicationApi::class,
     ]
 )
-interface DbComponent : DbApi {
+interface DbComponent : DbOutApi {
 
 }
 

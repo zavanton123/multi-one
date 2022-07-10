@@ -1,6 +1,6 @@
 package ru.zavanton.db_api
 
-interface DbApi {
+interface DbOutApi {
 
     fun appDatabase(): IAppDatabase
 
@@ -9,5 +9,5 @@ interface DbApi {
 
 interface DbApiProvider {
 
-    fun provideDbApi(): DbApi
+    fun provideDbApi(): DbOutApi
 }

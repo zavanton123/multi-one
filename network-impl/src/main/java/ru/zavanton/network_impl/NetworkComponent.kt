@@ -11,7 +11,7 @@ import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.zavanton.mylibrary.PerApplication
-import ru.zavanton.network_api.NetworkApi
+import ru.zavanton.network_api.NetworkOutApi
 
 object NetworkComponentInjector {
 
@@ -37,7 +37,7 @@ object NetworkComponentInjector {
         NetworkModule::class,
     ],
 )
-interface NetworkComponent : NetworkApi {
+interface NetworkComponent : NetworkOutApi {
 
 }
 

@@ -4,7 +4,7 @@ import dagger.Binds
 import dagger.Component
 import dagger.Module
 import ru.zavanton.accounts_api.data.IAccountRepository
-import ru.zavanton.accounts_api.di.AccountOutputDependencies
+import ru.zavanton.accounts_api.di.AccountOutApi
 import ru.zavanton.accounts_api.domain.IAccountInteractor
 import ru.zavanton.accounts_impl.data.AccountRepository
 import ru.zavanton.accounts_impl.domain.AccountInteractor
@@ -12,7 +12,7 @@ import ru.zavanton.accounts_impl.ui.AccountFragment
 import ru.zavanton.mylibrary.PerFeature
 import ru.zavanton.mylibrary.UtilsComponentInjector
 import ru.zavanton.transactions_api.ITransactionRepository
-import ru.zavanton.transactions_api.di.TransactionOutputDependencies
+import ru.zavanton.transactions_api.di.TransactionOutApi
 import ru.zavanton.transactions_api.di.TransactionOutputDependenciesProvider
 
 interface AccountInputDependencies {
@@ -25,7 +25,7 @@ object AccountComponentInjector {
     private var accountInputComponent: AccountInputComponent? = null
     private var accountOutputComponent: AccountOutputComponent? = null
 
-    fun getAccountOutputDependencies(): AccountOutputDependencies {
+    fun getAccountOutApi(): AccountOutApi {
         return accountOutputComponent
             ?: DaggerAccountOutputComponent
                 .create()
@@ -37,7 +37,7 @@ object AccountComponentInjector {
             ?: DaggerAccountComponent
                 .builder()
                 .accountInputDependencies(getAccountInput())
-                .accountOutputDependencies(getAccountOutputDependencies())
+                .accountOutApi(getAccountOutApi())
                 .build()
                 .apply {
                     accountComponent = this
@@ -59,7 +59,7 @@ object AccountComponentInjector {
         return accountInputComponent
             ?: DaggerAccountInputComponent
                 .builder()
-                .transactionOutputDependencies(provider.provideTransactionOutputDependencies())
+                .transactionOutApi(provider.provideTransactionOutApi())
                 .build()
                 .apply {
                     accountInputComponent = this
@@ -73,7 +73,7 @@ object AccountComponentInjector {
         AccountsInteractorModule::class
     ],
     dependencies = [
-        AccountOutputDependencies::class,
+        AccountOutApi::class,
         AccountInputDependencies::class,
     ]
 )
@@ -88,12 +88,12 @@ interface AccountComponent {
         AccountsRepositoryModule::class
     ]
 )
-interface AccountOutputComponent : AccountOutputDependencies
+interface AccountOutputComponent : AccountOutApi
 
 @PerFeature
 @Component(
     dependencies = [
-        TransactionOutputDependencies::class,
+        TransactionOutApi::class,
     ]
 )
 interface AccountInputComponent : AccountInputDependencies
