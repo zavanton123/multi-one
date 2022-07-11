@@ -20,7 +20,7 @@ class TransactionsFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         TransactionComponentHolder
-            .accessTransactionComponent()
+            .getTransactionComponent()
             .inject(this)
     }
 

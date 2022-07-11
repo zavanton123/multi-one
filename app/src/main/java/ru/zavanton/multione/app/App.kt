@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import retrofit2.Retrofit
 import ru.zavanton.accounts_api.data.IAccountRepository
-import ru.zavanton.accounts_api.di.AccountOutApi
 import ru.zavanton.accounts_impl.di.AccountComponentHolder
 import ru.zavanton.accounts_impl.di.AccountInApi
 import ru.zavanton.db_api.IAppDatabaseDao
@@ -52,7 +51,7 @@ class App : Application() {
         AccountComponentHolder.accountInApiFactory = {
             object : AccountInApi {
                 override fun transactionRepository(): ITransactionRepository {
-                    return TransactionComponentHolder.accessTransactionOutApi()
+                    return TransactionComponentHolder.getTransactionOutApi()
                         .transactionRepository()
                 }
             }
@@ -61,7 +60,7 @@ class App : Application() {
         TransactionComponentHolder.transactionInApiFactory = {
             object : TransactionInApi {
                 override fun accountRepository(): IAccountRepository {
-                    return AccountComponentHolder.accessAccountOutApi().accountRepository()
+                    return AccountComponentHolder.getAccountOutApi().accountRepository()
                 }
             }
         }

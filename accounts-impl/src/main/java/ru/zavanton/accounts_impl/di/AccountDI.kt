@@ -18,13 +18,20 @@ interface AccountInApi {
     fun transactionRepository(): ITransactionRepository
 }
 
+// Note: AccountComponent is not the same as AccountOutComponent ->
+// this way we have solved the circular dependency problem
+// between the account and the transaction modules
 object AccountComponentHolder {
     // initialize in App
     lateinit var accountInApiFactory: () -> AccountInApi
 
+    // WeakReference provides automatic memory management ->
+    // when there are no more references to the component
+    // it is cleared by the Garbage Collector from the memory
     private var accountOutComponentWeakRef: WeakReference<AccountOutComponent>? = null
     private var accountComponentWeakRef: WeakReference<AccountComponent>? = null
 
+    // A new component instance is created only when needed by calling the lambda (i.e. factory)
     private val accountComponentFactory: (AccountInApi, AccountOutApi) -> AccountComponent =
         { accountInApi, accountOutApi ->
             DaggerAccountComponent
@@ -38,23 +45,28 @@ object AccountComponentHolder {
         DaggerAccountOutComponent.create()
     }
 
-    fun accessAccountOutApi(): AccountOutApi {
-        return accessAccountOutComponent()
+    // Used for providing account-related OutApi in the App
+    fun getAccountOutApi(): AccountOutApi {
+        return getAccountOutComponent()
     }
 
-    fun accessAccountComponent(): AccountComponent {
-        return accountComponentWeakRef?.get()
-            ?: accountComponentFactory(accountInApiFactory(), accessAccountOutComponent())
-                .apply {
-                    accountComponentWeakRef = WeakReference(this)
-                }
-    }
-
-    fun accessAccountOutComponent(): AccountOutComponent {
+    // We get the component from the weak reference.
+    // But if it has been cleared, we create a new instance of component by calling the lambda
+    // and assign it to the weak reference for further use
+    private fun getAccountOutComponent(): AccountOutComponent {
         return accountOutComponentWeakRef?.get()
             ?: accountOutComponentFactory().apply {
                 accountOutComponentWeakRef = WeakReference(this)
             }
+    }
+
+    // Used for field injection in AccountFragment.
+    fun getAccountComponent(): AccountComponent {
+        return accountComponentWeakRef?.get()
+            ?: accountComponentFactory(accountInApiFactory(), getAccountOutComponent())
+                .apply {
+                    accountComponentWeakRef = WeakReference(this)
+                }
     }
 }
 
