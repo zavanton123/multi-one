@@ -14,20 +14,34 @@ import ru.zavanton.mylibrary.UtilsComponentInjector
 import ru.zavanton.transactions_api.ITransactionRepository
 import ru.zavanton.transactions_api.di.TransactionOutApi
 import ru.zavanton.transactions_api.di.TransactionOutputDependenciesProvider
+import java.lang.ref.WeakReference
 
-interface AccountInputDependencies {
+interface AccountInApi {
 
     fun transactionRepository(): ITransactionRepository
 }
 
 object AccountComponentHolder {
+
+    lateinit var accountInApiFactory: () -> AccountInApi
+    private val accountComponentWeakRef: WeakReference<AccountComponent>? = null
+    private val accountOutComponentWeakRef: WeakReference<AccountOutComponent>? = null
+    private val accountComponentFactory: (AccountInApi, AccountOutApi) -> AccountComponent =
+        { accountInApi, accountOutApi ->
+            DaggerAccountComponent
+                .builder()
+                .accountInApi(accountInApi)
+                .accountOutApi(accountOutApi)
+                .build()
+        }
+
     private var accountComponent: AccountComponent? = null
-    private var accountInputComponent: AccountInputComponent? = null
-    private var accountOutputComponent: AccountOutputComponent? = null
+    private var accountInputComponent: AccountInComponent? = null
+    private var accountOutputComponent: AccountOutComponent? = null
 
     fun getAccountOutApi(): AccountOutApi {
         return accountOutputComponent
-            ?: DaggerAccountOutputComponent
+            ?: DaggerAccountOutComponent
                 .create()
                 .apply { accountOutputComponent = this }
     }
@@ -36,7 +50,7 @@ object AccountComponentHolder {
         return accountComponent
             ?: DaggerAccountComponent
                 .builder()
-                .accountInputDependencies(getAccountInput())
+                .accountInApi(getAccountInput())
                 .accountOutApi(getAccountOutApi())
                 .build()
                 .apply {
@@ -50,14 +64,14 @@ object AccountComponentHolder {
         accountOutputComponent = null
     }
 
-    private fun getAccountInput(): AccountInputDependencies {
+    private fun getAccountInput(): AccountInApi {
         val application = UtilsComponentInjector.utilsComponent.application()
 
         val provider = application as? TransactionOutputDependenciesProvider
             ?: throw Exception("App must implement TransactionOutputDependenciesProvider ")
 
         return accountInputComponent
-            ?: DaggerAccountInputComponent
+            ?: DaggerAccountInComponent
                 .builder()
                 .transactionOutApi(provider.provideTransactionOutApi())
                 .build()
@@ -74,7 +88,7 @@ object AccountComponentHolder {
     ],
     dependencies = [
         AccountOutApi::class,
-        AccountInputDependencies::class,
+        AccountInApi::class,
     ]
 )
 interface AccountComponent {
@@ -88,7 +102,7 @@ interface AccountComponent {
         AccountsRepositoryModule::class
     ]
 )
-interface AccountOutputComponent : AccountOutApi
+interface AccountOutComponent : AccountOutApi
 
 @PerFeature
 @Component(
@@ -96,7 +110,7 @@ interface AccountOutputComponent : AccountOutApi
         TransactionOutApi::class,
     ]
 )
-interface AccountInputComponent : AccountInputDependencies
+interface AccountInComponent : AccountInApi
 
 @Module
 interface AccountsRepositoryModule {
