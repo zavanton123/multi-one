@@ -30,7 +30,7 @@ class App : Application(),
     }
 
     override fun provideNetworkApi(): NetworkOutApi {
-        return NetworkComponentInjector.getNetworkComponent()
+        return NetworkComponentInjector.getNetworkOutApi()
     }
 
     override fun provideDbApi(): DatabaseOutApi {

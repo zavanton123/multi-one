@@ -47,12 +47,12 @@ class ScannerFragment : Fragment() {
         }
 
         binding.tvDemo.setOnLongClickListener {
-            val request = NavDeepLinkRequest.Builder
-                .fromUri(Uri.parse(TRANSACTIONS_SCREEN))
-                .build()
-            findNavController().navigate(request)
+//            val request = NavDeepLinkRequest.Builder
+//                .fromUri(Uri.parse(TRANSACTIONS_SCREEN))
+//                .build()
+//            findNavController().navigate(request)
 
-            // viewModel.loadData()
+             viewModel.loadData()
             true
         }
 

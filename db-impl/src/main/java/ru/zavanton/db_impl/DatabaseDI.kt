@@ -10,10 +10,26 @@ import ru.zavanton.db_api.IAppDatabase
 import ru.zavanton.db_api.IAppDatabaseDao
 import ru.zavanton.mylibrary.AppContext
 import ru.zavanton.mylibrary.PerApplication
+import java.lang.ref.WeakReference
 
 object DatabaseComponentInjector {
 
     private var databaseComponent: DatabaseComponent? = null
+    private var databaseOutApiWeakRef: WeakReference<DatabaseOutApi>? = null
+    lateinit var databaseInApiFactory: () -> DatabaseInApi
+    private val databaseOutApiFactory: (DatabaseInApi) -> DatabaseOutApi = { databaseInApi ->
+        DaggerDatabaseComponent
+            .builder()
+            .databaseInApi(databaseInApi)
+            .build()
+    }
+
+    fun getDatabaseOutApi(): DatabaseOutApi {
+        return databaseOutApiWeakRef?.get()
+            ?: databaseOutApiFactory(databaseInApiFactory()).apply {
+                databaseOutApiWeakRef = WeakReference(this)
+            }
+    }
 
     fun fetchDbComponent(context: Context): DatabaseComponent {
         val databaseInApi = object : DatabaseInApi {
