@@ -21,9 +21,9 @@ interface DatabaseInApi {
 
 object DatabaseComponentInjector {
 
-    private var databaseOutApiWeakRef: WeakReference<DatabaseOutApi>? = null
+    private var databaseComponentWeakRef: WeakReference<DatabaseComponent>? = null
     lateinit var databaseInApiFactory: () -> DatabaseInApi
-    private val databaseOutApiFactory: (DatabaseInApi) -> DatabaseOutApi = { databaseInApi ->
+    private val databaseComponentFactory: (DatabaseInApi) -> DatabaseComponent = { databaseInApi ->
         DaggerDatabaseComponent
             .builder()
             .databaseInApi(databaseInApi)
@@ -31,9 +31,9 @@ object DatabaseComponentInjector {
     }
 
     fun getDatabaseOutApi(): DatabaseOutApi {
-        return databaseOutApiWeakRef?.get()
-            ?: databaseOutApiFactory(databaseInApiFactory()).apply {
-                databaseOutApiWeakRef = WeakReference(this)
+        return databaseComponentWeakRef?.get()
+            ?: databaseComponentFactory(databaseInApiFactory()).apply {
+                databaseComponentWeakRef = WeakReference(this)
             }
     }
 }

@@ -6,8 +6,3 @@ interface DatabaseOutApi {
 
     fun appDatabaseDao(): IAppDatabaseDao
 }
-
-interface DbApiProvider {
-
-    fun provideDbApi(): DatabaseOutApi
-}

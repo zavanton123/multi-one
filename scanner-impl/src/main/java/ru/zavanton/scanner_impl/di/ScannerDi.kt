@@ -1,16 +1,12 @@
 package ru.zavanton.scanner_impl.di
 
-import android.app.Application
 import dagger.Component
 import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit
-import ru.zavanton.db_api.DbApiProvider
 import ru.zavanton.db_api.DatabaseOutApi
 import ru.zavanton.db_api.IAppDatabaseDao
 import ru.zavanton.mylibrary.PerFeature
-import ru.zavanton.mylibrary.UtilsComponentInjector
-import ru.zavanton.network_api.NetworkApiProvider
 import ru.zavanton.network_api.NetworkOutApi
 import ru.zavanton.scanner_api.ScannerOutApi
 import ru.zavanton.scanner_impl.data.ScannerNetworkService
@@ -19,57 +15,25 @@ import java.lang.ref.WeakReference
 
 object ScannerComponentInjector {
 
-    private var outApiWeakRef: WeakReference<ScannerOutApi>? = null
+    private var scannerComponentWeakRef: WeakReference<ScannerComponent>? = null
+    // initialize in App
     lateinit var scannerInApiFactory: () -> ScannerInApi
-    private val scannerOutputApiFactory: (ScannerInApi) -> ScannerOutApi = { scannerInApi ->
+    private val scannerComponentFactory: (ScannerInApi) -> ScannerComponent = { scannerInApi ->
         DaggerScannerComponent
             .factory()
             .create(scannerInApi)
     }
 
-    private var scannerComponent: ScannerComponent? = null
-    private var scannerInApi: ScannerInApi? = null
-
     fun getScannerOutApi(): ScannerOutApi {
-        return outApiWeakRef?.get()
-            ?: scannerOutputApiFactory(scannerInApiFactory()).apply {
-                outApiWeakRef = WeakReference(this)
-            }
+        return getScannerComponent()
     }
 
     fun getScannerComponent(): ScannerComponent {
-        return scannerComponent ?: DaggerScannerComponent
-            .factory()
-            .create(getScannerInApi())
-            .apply { scannerComponent = this }
+        return scannerComponentWeakRef?.get()
+            ?: scannerComponentFactory(scannerInApiFactory()).apply {
+                scannerComponentWeakRef = WeakReference(this)
+            }
     }
-
-    fun clear() {
-        scannerComponent = null
-    }
-
-    private fun getScannerInApi(): ScannerInApi {
-        return scannerInApi
-            ?: UtilsComponentInjector.utilsComponent.application()
-                .let { application ->
-                    DaggerScannerInApiComponent.builder()
-                        .networkOutApi(getNetworkApi(application))
-                        .databaseOutApi(getDbApi(application))
-                        .build()
-                        .apply { scannerInApi = this }
-                }
-    }
-
-    // Get the dependencies from the App
-    private fun getDbApi(application: Application): DatabaseOutApi {
-        return (application as? DbApiProvider ?: throw Exception("Must provide DbApi"))
-            .provideDbApi()
-    }
-
-    // Get the dependencies from the App
-    private fun getNetworkApi(application: Application) =
-        (application as? NetworkApiProvider ?: throw Exception("Must provide NetworkApi"))
-            .provideNetworkApi()
 }
 
 @PerFeature

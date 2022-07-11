@@ -9,8 +9,3 @@ interface NetworkOutApi {
 
     fun okHttpClient(): OkHttpClient
 }
-
-interface NetworkApiProvider {
-
-    fun provideNetworkApi(): NetworkOutApi
-}
