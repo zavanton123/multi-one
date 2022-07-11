@@ -21,7 +21,7 @@ class AccountFragment : Fragment() {
         super.onAttach(context)
 
         AccountComponentHolder
-            .getAccountComponent()
+            .accessAccountComponent()
             .inject(this)
     }
 

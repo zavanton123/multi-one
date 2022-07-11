@@ -10,10 +10,8 @@ import ru.zavanton.accounts_impl.data.AccountRepository
 import ru.zavanton.accounts_impl.domain.AccountInteractor
 import ru.zavanton.accounts_impl.ui.AccountFragment
 import ru.zavanton.mylibrary.PerFeature
-import ru.zavanton.mylibrary.UtilsComponentInjector
 import ru.zavanton.transactions_api.ITransactionRepository
 import ru.zavanton.transactions_api.di.TransactionOutApi
-import ru.zavanton.transactions_api.di.TransactionOutputDependenciesProvider
 import java.lang.ref.WeakReference
 
 interface AccountInApi {
@@ -22,10 +20,12 @@ interface AccountInApi {
 }
 
 object AccountComponentHolder {
-
+    // initialize in App
     lateinit var accountInApiFactory: () -> AccountInApi
-    private val accountComponentWeakRef: WeakReference<AccountComponent>? = null
-    private val accountOutComponentWeakRef: WeakReference<AccountOutComponent>? = null
+
+    private var accountOutComponentWeakRef: WeakReference<AccountOutComponent>? = null
+    private var accountComponentWeakRef: WeakReference<AccountComponent>? = null
+
     private val accountComponentFactory: (AccountInApi, AccountOutApi) -> AccountComponent =
         { accountInApi, accountOutApi ->
             DaggerAccountComponent
@@ -34,6 +34,29 @@ object AccountComponentHolder {
                 .accountOutApi(accountOutApi)
                 .build()
         }
+
+    private val accountOutComponentFactory: () -> AccountOutComponent = {
+        DaggerAccountOutComponent.create()
+    }
+
+    fun accessAccountOutApi(): AccountOutApi {
+        return accessAccountOutComponent()
+    }
+
+    fun accessAccountComponent(): AccountComponent {
+        return accountComponentWeakRef?.get()
+            ?: accountComponentFactory(accountInApiFactory(), accessAccountOutComponent())
+                .apply {
+                    accountComponentWeakRef = WeakReference(this)
+                }
+    }
+
+    fun accessAccountOutComponent(): AccountOutComponent {
+        return accountOutComponentWeakRef?.get()
+            ?: accountOutComponentFactory().apply {
+                accountOutComponentWeakRef = WeakReference(this)
+            }
+    }
 
     private var accountComponent: AccountComponent? = null
     private var accountInputComponent: AccountInComponent? = null
@@ -46,38 +69,10 @@ object AccountComponentHolder {
                 .apply { accountOutputComponent = this }
     }
 
-    fun getAccountComponent(): AccountComponent {
-        return accountComponent
-            ?: DaggerAccountComponent
-                .builder()
-                .accountInApi(getAccountInput())
-                .accountOutApi(getAccountOutApi())
-                .build()
-                .apply {
-                    accountComponent = this
-                }
-    }
-
     fun clear() {
         accountComponent = null
         accountInputComponent = null
         accountOutputComponent = null
-    }
-
-    private fun getAccountInput(): AccountInApi {
-        val application = UtilsComponentInjector.utilsComponent.application()
-
-        val provider = application as? TransactionOutputDependenciesProvider
-            ?: throw Exception("App must implement TransactionOutputDependenciesProvider ")
-
-        return accountInputComponent
-            ?: DaggerAccountInComponent
-                .builder()
-                .transactionOutApi(provider.provideTransactionOutApi())
-                .build()
-                .apply {
-                    accountInputComponent = this
-                }
     }
 }
 

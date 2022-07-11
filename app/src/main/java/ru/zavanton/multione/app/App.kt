@@ -6,6 +6,7 @@ import retrofit2.Retrofit
 import ru.zavanton.accounts_api.di.AccountOutApi
 import ru.zavanton.accounts_api.di.AccountOutputDependenciesProvider
 import ru.zavanton.accounts_impl.di.AccountComponentHolder
+import ru.zavanton.accounts_impl.di.AccountInApi
 import ru.zavanton.db_api.IAppDatabaseDao
 import ru.zavanton.db_impl.DatabaseComponentHolder
 import ru.zavanton.db_impl.DatabaseInApi
@@ -13,13 +14,11 @@ import ru.zavanton.mylibrary.UtilsComponentInjector
 import ru.zavanton.network_impl.NetworkComponentHolder
 import ru.zavanton.scanner_impl.di.ScannerComponentHolder
 import ru.zavanton.scanner_impl.di.ScannerInApi
-import ru.zavanton.transactions_api.di.TransactionOutApi
-import ru.zavanton.transactions_api.di.TransactionOutputDependenciesProvider
+import ru.zavanton.transactions_api.ITransactionRepository
 import ru.zavanton.transactions_impl.di.TransactionComponentHolder
 
 class App : Application(),
-    AccountOutputDependenciesProvider,
-    TransactionOutputDependenciesProvider {
+    AccountOutputDependenciesProvider {
 
     override fun onCreate() {
         super.onCreate()
@@ -49,13 +48,17 @@ class App : Application(),
                 }
             }
         }
+
+        AccountComponentHolder.accountInApiFactory = {
+            object : AccountInApi {
+                override fun transactionRepository(): ITransactionRepository {
+                    return TransactionComponentHolder.getTransactionOutApi().transactionRepository()
+                }
+            }
+        }
     }
 
     override fun provideAccountOutputDependencies(): AccountOutApi {
         return AccountComponentHolder.getAccountOutApi()
-    }
-
-    override fun provideTransactionOutApi(): TransactionOutApi {
-        return TransactionComponentHolder.getTransactionOutApi()
     }
 }

@@ -6,8 +6,3 @@ interface TransactionOutApi {
 
     fun transactionRepository(): ITransactionRepository
 }
-
-interface TransactionOutputDependenciesProvider {
-
-    fun provideTransactionOutApi(): TransactionOutApi
-}
