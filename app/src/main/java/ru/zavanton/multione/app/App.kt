@@ -1,12 +1,14 @@
 package ru.zavanton.multione.app
 
 import android.app.Application
+import android.content.Context
 import ru.zavanton.accounts_api.di.AccountOutApi
 import ru.zavanton.accounts_api.di.AccountOutputDependenciesProvider
 import ru.zavanton.accounts_impl.di.AccountComponentInjector
 import ru.zavanton.db_api.DatabaseOutApi
 import ru.zavanton.db_api.DbApiProvider
 import ru.zavanton.db_impl.DatabaseComponentInjector
+import ru.zavanton.db_impl.DatabaseInApi
 import ru.zavanton.mylibrary.UtilsComponentInjector
 import ru.zavanton.network_api.NetworkApiProvider
 import ru.zavanton.network_api.NetworkOutApi
@@ -34,7 +36,14 @@ class App : Application(),
     }
 
     override fun provideDbApi(): DatabaseOutApi {
-        return DatabaseComponentInjector.fetchDbComponent(this)
+        DatabaseComponentInjector.databaseInApiFactory = {
+            object : DatabaseInApi {
+                override fun appContext(): Context {
+                    return this@App
+                }
+            }
+        }
+        return DatabaseComponentInjector.getDatabaseOutApi()
     }
 
     override fun provideAccountOutputDependencies(): AccountOutApi {
