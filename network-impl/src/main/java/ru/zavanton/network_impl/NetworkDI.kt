@@ -16,7 +16,6 @@ import java.lang.ref.WeakReference
 
 object NetworkComponentInjector {
 
-    private var networkComponent: NetworkComponent? = null
     private var networkOutApiWeakRef: WeakReference<NetworkOutApi>? = null
     private val networkOutApiFactory: () -> NetworkOutApi = { DaggerNetworkComponent.create() }
 
@@ -25,19 +24,6 @@ object NetworkComponentInjector {
             ?: networkOutApiFactory().apply {
                 networkOutApiWeakRef = WeakReference(this)
             }
-    }
-
-    fun getNetworkComponent(): NetworkComponent {
-        return networkComponent ?: DaggerNetworkComponent
-            .builder()
-            .build()
-            .apply {
-                networkComponent = this
-            }
-    }
-
-    fun clear() {
-        networkComponent = null
     }
 }
 

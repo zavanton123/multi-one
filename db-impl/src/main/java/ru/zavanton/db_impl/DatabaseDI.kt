@@ -12,9 +12,15 @@ import ru.zavanton.mylibrary.AppContext
 import ru.zavanton.mylibrary.PerApplication
 import java.lang.ref.WeakReference
 
+
+interface DatabaseInApi {
+
+    @AppContext
+    fun appContext(): Context
+}
+
 object DatabaseComponentInjector {
 
-    private var databaseComponent: DatabaseComponent? = null
     private var databaseOutApiWeakRef: WeakReference<DatabaseOutApi>? = null
     lateinit var databaseInApiFactory: () -> DatabaseInApi
     private val databaseOutApiFactory: (DatabaseInApi) -> DatabaseOutApi = { databaseInApi ->
@@ -30,26 +36,6 @@ object DatabaseComponentInjector {
                 databaseOutApiWeakRef = WeakReference(this)
             }
     }
-
-    fun fetchDbComponent(context: Context): DatabaseComponent {
-        val databaseInApi = object : DatabaseInApi {
-            override fun appContext(): Context {
-                return context
-            }
-        }
-
-        return databaseComponent ?: DaggerDatabaseComponent
-            .builder()
-            .databaseInApi(databaseInApi)
-            .build()
-            .apply {
-                databaseComponent = this
-            }
-    }
-
-    fun clear() {
-        databaseComponent = null
-    }
 }
 
 @PerApplication
@@ -59,17 +45,9 @@ object DatabaseComponentInjector {
     ],
     dependencies = [
         DatabaseInApi::class,
-    ]
+    ],
 )
-interface DatabaseComponent : DatabaseOutApi {
-
-}
-
-interface DatabaseInApi {
-
-    @AppContext
-    fun appContext(): Context
-}
+interface DatabaseComponent : DatabaseOutApi
 
 @Module
 class DatabaseModule {
