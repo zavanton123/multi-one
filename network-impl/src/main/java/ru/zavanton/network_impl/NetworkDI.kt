@@ -12,10 +12,20 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.zavanton.mylibrary.PerApplication
 import ru.zavanton.network_api.NetworkOutApi
+import java.lang.ref.WeakReference
 
 object NetworkComponentInjector {
 
     private var networkComponent: NetworkComponent? = null
+    private var networkOutApiWeakRef: WeakReference<NetworkOutApi>? = null
+    private val networkOutApiFactory: () -> NetworkOutApi = { DaggerNetworkComponent.create() }
+
+    fun getNetworkOutApi(): NetworkOutApi {
+        return networkOutApiWeakRef?.get()
+            ?: networkOutApiFactory().apply {
+                networkOutApiWeakRef = WeakReference(this)
+            }
+    }
 
     fun getNetworkComponent(): NetworkComponent {
         return networkComponent ?: DaggerNetworkComponent

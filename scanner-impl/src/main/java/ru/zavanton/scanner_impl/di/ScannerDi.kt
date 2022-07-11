@@ -6,7 +6,8 @@ import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit
 import ru.zavanton.db_api.DbApiProvider
-import ru.zavanton.db_api.DbOutApi
+import ru.zavanton.db_api.DatabaseOutApi
+import ru.zavanton.db_api.IAppDatabaseDao
 import ru.zavanton.mylibrary.PerFeature
 import ru.zavanton.mylibrary.UtilsComponentInjector
 import ru.zavanton.network_api.NetworkApiProvider
@@ -14,11 +15,27 @@ import ru.zavanton.network_api.NetworkOutApi
 import ru.zavanton.scanner_api.ScannerOutApi
 import ru.zavanton.scanner_impl.data.ScannerNetworkService
 import ru.zavanton.scanner_impl.ui.ScannerFragment
+import java.lang.ref.WeakReference
 
 object ScannerComponentInjector {
 
+    private var outApiWeakRef: WeakReference<ScannerOutApi>? = null
+    lateinit var scannerInApiFactory: () -> ScannerInApi
+    private val scannerOutputApiFactory: (ScannerInApi) -> ScannerOutApi = { scannerInApi ->
+        DaggerScannerComponent
+            .factory()
+            .create(scannerInApi)
+    }
+
     private var scannerComponent: ScannerComponent? = null
     private var scannerInApi: ScannerInApi? = null
+
+    fun getScannerOutApi(): ScannerOutApi {
+        return outApiWeakRef?.get()
+            ?: scannerOutputApiFactory(scannerInApiFactory()).apply {
+                outApiWeakRef = WeakReference(this)
+            }
+    }
 
     fun getScannerComponent(): ScannerComponent {
         return scannerComponent ?: DaggerScannerComponent
@@ -37,14 +54,14 @@ object ScannerComponentInjector {
                 .let { application ->
                     DaggerScannerInApiComponent.builder()
                         .networkOutApi(getNetworkApi(application))
-                        .dbOutApi(getDbApi(application))
+                        .databaseOutApi(getDbApi(application))
                         .build()
                         .apply { scannerInApi = this }
                 }
     }
 
     // Get the dependencies from the App
-    private fun getDbApi(application: Application): DbOutApi {
+    private fun getDbApi(application: Application): DatabaseOutApi {
         return (application as? DbApiProvider ?: throw Exception("Must provide DbApi"))
             .provideDbApi()
     }
@@ -77,7 +94,7 @@ interface ScannerComponent : ScannerOutApi {
 @Component(
     dependencies = [
         NetworkOutApi::class,
-        DbOutApi::class,
+        DatabaseOutApi::class,
     ]
 )
 interface ScannerInApiComponent : ScannerInApi
@@ -90,4 +107,11 @@ class ScannerNetworkServiceModule {
     fun provideService(retrofit: Retrofit): ScannerNetworkService {
         return retrofit.create(ScannerNetworkService::class.java)
     }
+}
+
+interface ScannerInApi {
+
+    fun retrofit(): Retrofit
+
+    fun appDatabaseDao(): IAppDatabaseDao
 }

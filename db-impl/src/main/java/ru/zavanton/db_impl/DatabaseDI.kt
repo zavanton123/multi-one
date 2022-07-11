@@ -5,50 +5,58 @@ import androidx.room.Room
 import dagger.Component
 import dagger.Module
 import dagger.Provides
-import ru.zavanton.db_api.DbOutApi
+import ru.zavanton.db_api.DatabaseOutApi
 import ru.zavanton.db_api.IAppDatabase
 import ru.zavanton.db_api.IAppDatabaseDao
 import ru.zavanton.mylibrary.AppContext
-import ru.zavanton.mylibrary.ApplicationApi
 import ru.zavanton.mylibrary.PerApplication
-import ru.zavanton.mylibrary.UtilsComponentInjector
 
-object DbComponentInjector {
+object DatabaseComponentInjector {
 
-    private var dbComponent: DbComponent? = null
+    private var databaseComponent: DatabaseComponent? = null
 
-    fun fetchDbComponent(): DbComponent {
-        val applicationApi = UtilsComponentInjector.utilsComponent
+    fun fetchDbComponent(context: Context): DatabaseComponent {
+        val databaseInApi = object : DatabaseInApi {
+            override fun appContext(): Context {
+                return context
+            }
+        }
 
-        return dbComponent ?: DaggerDbComponent
+        return databaseComponent ?: DaggerDatabaseComponent
             .builder()
-            .applicationApi(applicationApi)
+            .databaseInApi(databaseInApi)
             .build()
             .apply {
-                dbComponent = this
+                databaseComponent = this
             }
     }
 
     fun clear() {
-        dbComponent = null
+        databaseComponent = null
     }
 }
 
 @PerApplication
 @Component(
     modules = [
-        DbModule::class,
+        DatabaseModule::class,
     ],
     dependencies = [
-        ApplicationApi::class,
+        DatabaseInApi::class,
     ]
 )
-interface DbComponent : DbOutApi {
+interface DatabaseComponent : DatabaseOutApi {
 
 }
 
+interface DatabaseInApi {
+
+    @AppContext
+    fun appContext(): Context
+}
+
 @Module
-class DbModule {
+class DatabaseModule {
 
     @PerApplication
     @Provides
