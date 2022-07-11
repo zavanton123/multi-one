@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.zavanton.accounts_api.domain.IAccountInteractor
-import ru.zavanton.accounts_impl.di.AccountComponentInjector
+import ru.zavanton.accounts_impl.di.AccountComponentHolder
 import javax.inject.Inject
 
 class AccountViewModel constructor(
@@ -26,7 +26,7 @@ class AccountViewModel constructor(
 
     override fun onCleared() {
         super.onCleared()
-        AccountComponentInjector.clear()
+        AccountComponentHolder.clear()
     }
 }
 

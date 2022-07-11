@@ -13,7 +13,7 @@ import ru.zavanton.scanner_impl.data.ScannerNetworkService
 import ru.zavanton.scanner_impl.ui.ScannerFragment
 import java.lang.ref.WeakReference
 
-object ScannerComponentInjector {
+object ScannerComponentHolder {
 
     private var scannerComponentWeakRef: WeakReference<ScannerComponent>? = null
     // initialize in App

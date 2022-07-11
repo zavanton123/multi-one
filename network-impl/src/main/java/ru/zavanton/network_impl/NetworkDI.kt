@@ -14,7 +14,7 @@ import ru.zavanton.mylibrary.PerApplication
 import ru.zavanton.network_api.NetworkOutApi
 import java.lang.ref.WeakReference
 
-object NetworkComponentInjector {
+object NetworkComponentHolder {
 
     private var networkComponentWeakRef: WeakReference<NetworkComponent>? = null
     private val networkComponentFactory: () -> NetworkComponent = { DaggerNetworkComponent.create() }

@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import ru.zavanton.transactions_impl.databinding.FragmentTransactionsBinding
-import ru.zavanton.transactions_impl.di.TransactionComponentInjector
+import ru.zavanton.transactions_impl.di.TransactionComponentHolder
 import javax.inject.Inject
 
 class TransactionsFragment : Fragment() {
@@ -19,7 +19,7 @@ class TransactionsFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        TransactionComponentInjector
+        TransactionComponentHolder
             .getTransactionComponent()
             .inject(this)
     }

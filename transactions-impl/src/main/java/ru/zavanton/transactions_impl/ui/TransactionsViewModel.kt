@@ -8,8 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.zavanton.transactions_api.ITransactionInteractor
-import ru.zavanton.transactions_impl.di.TransactionComponent
-import ru.zavanton.transactions_impl.di.TransactionComponentInjector
+import ru.zavanton.transactions_impl.di.TransactionComponentHolder
 import javax.inject.Inject
 
 class TransactionsViewModel constructor(
@@ -27,7 +26,7 @@ class TransactionsViewModel constructor(
 
     override fun onCleared() {
         super.onCleared()
-        TransactionComponentInjector.clear()
+        TransactionComponentHolder.clear()
     }
 }
 

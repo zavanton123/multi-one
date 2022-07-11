@@ -20,7 +20,7 @@ interface TransactionInApi {
     fun accountRepository(): IAccountRepository
 }
 
-object TransactionComponentInjector {
+object TransactionComponentHolder {
     private var transactionComponent: TransactionComponent? = null
     private var transactionInApiComponent: TransactionInApiComponent? = null
     private var transactionOutApiComponent: TransactionOutApiComponent? = null

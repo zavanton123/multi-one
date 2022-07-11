@@ -20,7 +20,7 @@ interface AccountInputDependencies {
     fun transactionRepository(): ITransactionRepository
 }
 
-object AccountComponentInjector {
+object AccountComponentHolder {
     private var accountComponent: AccountComponent? = null
     private var accountInputComponent: AccountInputComponent? = null
     private var accountOutputComponent: AccountOutputComponent? = null

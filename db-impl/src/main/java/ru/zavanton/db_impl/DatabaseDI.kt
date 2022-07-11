@@ -19,7 +19,7 @@ interface DatabaseInApi {
     fun appContext(): Context
 }
 
-object DatabaseComponentInjector {
+object DatabaseComponentHolder {
 
     private var databaseComponentWeakRef: WeakReference<DatabaseComponent>? = null
     lateinit var databaseInApiFactory: () -> DatabaseInApi

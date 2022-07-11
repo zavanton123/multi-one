@@ -11,9 +11,8 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.NavDeepLinkRequest
 import androidx.navigation.fragment.findNavController
 import ru.zavanton.mylibrary.ACCOUNTS_SCREEN
-import ru.zavanton.mylibrary.TRANSACTIONS_SCREEN
 import ru.zavanton.scanner_impl.databinding.FragmentScannerBinding
-import ru.zavanton.scanner_impl.di.ScannerComponentInjector
+import ru.zavanton.scanner_impl.di.ScannerComponentHolder
 import javax.inject.Inject
 
 class ScannerFragment : Fragment() {
@@ -27,7 +26,7 @@ class ScannerFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        ScannerComponentInjector
+        ScannerComponentHolder
             .getScannerComponent()
             .inject(this)
     }
