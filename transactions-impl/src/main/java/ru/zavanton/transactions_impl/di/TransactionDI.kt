@@ -5,15 +5,14 @@ import dagger.Component
 import dagger.Module
 import ru.zavanton.accounts_api.data.IAccountRepository
 import ru.zavanton.accounts_api.di.AccountOutApi
-import ru.zavanton.accounts_api.di.AccountOutputDependenciesProvider
 import ru.zavanton.mylibrary.PerFeature
-import ru.zavanton.mylibrary.UtilsComponentInjector
 import ru.zavanton.transactions_api.ITransactionInteractor
 import ru.zavanton.transactions_api.ITransactionRepository
 import ru.zavanton.transactions_api.di.TransactionOutApi
 import ru.zavanton.transactions_impl.data.TransactionRepository
 import ru.zavanton.transactions_impl.domain.TransactionInteractor
 import ru.zavanton.transactions_impl.ui.TransactionsFragment
+import java.lang.ref.WeakReference
 
 interface TransactionInApi {
 
@@ -21,47 +20,38 @@ interface TransactionInApi {
 }
 
 object TransactionComponentHolder {
-    private var transactionComponent: TransactionComponent? = null
-    private var transactionInApiComponent: TransactionInApiComponent? = null
-    private var transactionOutApiComponent: TransactionOutApiComponent? = null
+    // Initialize in App
+    lateinit var transactionInApiFactory: () -> TransactionInApi
 
-    fun getTransactionComponent(): TransactionComponent {
-        return transactionComponent
-            ?: DaggerTransactionComponent
-                .builder()
-                .transactionInApi(getTransactionInApi())
-                .transactionOutApi(getTransactionOutApi())
+    private var transactionComponentWeakRef: WeakReference<TransactionComponent>? = null
+    private var transactionOutComponentWeakRef: WeakReference<TransactionOutComponent>? = null
+
+    private val transactionComponentFactory: (TransactionInApi, TransactionOutApi) -> TransactionComponent =
+        { transactionInApi, transactionOutApi ->
+            DaggerTransactionComponent.builder()
+                .transactionInApi(transactionInApi)
+                .transactionOutApi(transactionOutApi)
                 .build()
-                .apply { transactionComponent = this }
+        }
+
+    private val transactionOutComponentFactory: () -> TransactionOutComponent = {
+        DaggerTransactionOutComponent.create()
     }
 
-    fun getTransactionOutApi(): TransactionOutApi {
-        return transactionOutApiComponent
-            ?: DaggerTransactionOutApiComponent
-                .create()
-                .apply { transactionOutApiComponent = this }
+    fun accessTransactionOutApi(): TransactionOutApi {
+        return accessTransactionOutComponent()
     }
 
-    fun clear() {
-        transactionComponent = null
-        transactionInApiComponent = null
-        transactionOutApiComponent = null
+    fun accessTransactionOutComponent(): TransactionOutComponent {
+        return transactionOutComponentWeakRef?.get()
+            ?: transactionOutComponentFactory().apply {
+                transactionOutComponentWeakRef = WeakReference(this)
+            }
     }
 
-    private fun getTransactionInApi(): TransactionInApi {
-        return transactionInApiComponent
-            ?: DaggerTransactionInApiComponent
-                .builder()
-                .accountOutApi(provideAccountOutApi())
-                .build()
-                .apply { transactionInApiComponent = this }
-    }
-
-    private fun provideAccountOutApi(): AccountOutApi {
-        val application = UtilsComponentInjector.utilsComponent.application()
-        val provider = application as? AccountOutputDependenciesProvider
-            ?: throw Exception("App must implement AccountOutputDependenciesProvider")
-        return provider.provideAccountOutputDependencies()
+    fun accessTransactionComponent(): TransactionComponent {
+        return transactionComponentWeakRef?.get()
+            ?: transactionComponentFactory(transactionInApiFactory(), accessTransactionOutApi())
     }
 }
 
@@ -86,7 +76,7 @@ interface TransactionComponent {
         TransactionRepositoryModule::class,
     ]
 )
-interface TransactionOutApiComponent : TransactionOutApi
+interface TransactionOutComponent : TransactionOutApi
 
 @PerFeature
 @Component(

@@ -20,9 +20,10 @@ interface DatabaseInApi {
 }
 
 object DatabaseComponentHolder {
+    // Initialize in App
+    lateinit var databaseInApiFactory: () -> DatabaseInApi
 
     private var databaseComponentWeakRef: WeakReference<DatabaseComponent>? = null
-    lateinit var databaseInApiFactory: () -> DatabaseInApi
     private val databaseComponentFactory: (DatabaseInApi) -> DatabaseComponent = { databaseInApi ->
         DaggerDatabaseComponent
             .builder()

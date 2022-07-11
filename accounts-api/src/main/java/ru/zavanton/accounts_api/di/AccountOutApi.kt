@@ -6,8 +6,3 @@ interface AccountOutApi {
 
     fun accountRepository(): IAccountRepository
 }
-
-interface AccountOutputDependenciesProvider {
-
-    fun provideAccountOutputDependencies(): AccountOutApi
-}

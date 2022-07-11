@@ -14,10 +14,14 @@ import ru.zavanton.mylibrary.PerApplication
 import ru.zavanton.network_api.NetworkOutApi
 import java.lang.ref.WeakReference
 
+// Note: network module has no input Api
 object NetworkComponentHolder {
 
     private var networkComponentWeakRef: WeakReference<NetworkComponent>? = null
-    private val networkComponentFactory: () -> NetworkComponent = { DaggerNetworkComponent.create() }
+
+    private val networkComponentFactory: () -> NetworkComponent = {
+        DaggerNetworkComponent.create()
+    }
 
     fun getNetworkOutApi(): NetworkOutApi {
         return networkComponentWeakRef?.get()
@@ -33,9 +37,7 @@ object NetworkComponentHolder {
         NetworkModule::class,
     ],
 )
-interface NetworkComponent : NetworkOutApi {
-
-}
+interface NetworkComponent : NetworkOutApi
 
 @Module
 class NetworkModule {

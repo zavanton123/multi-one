@@ -23,11 +23,6 @@ class TransactionsViewModel constructor(
             }
         }
     }
-
-    override fun onCleared() {
-        super.onCleared()
-        TransactionComponentHolder.clear()
-    }
 }
 
 class TransactionsViewModelFactory @Inject constructor(

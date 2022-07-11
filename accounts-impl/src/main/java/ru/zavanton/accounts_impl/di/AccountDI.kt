@@ -11,7 +11,6 @@ import ru.zavanton.accounts_impl.domain.AccountInteractor
 import ru.zavanton.accounts_impl.ui.AccountFragment
 import ru.zavanton.mylibrary.PerFeature
 import ru.zavanton.transactions_api.ITransactionRepository
-import ru.zavanton.transactions_api.di.TransactionOutApi
 import java.lang.ref.WeakReference
 
 interface AccountInApi {
@@ -57,23 +56,6 @@ object AccountComponentHolder {
                 accountOutComponentWeakRef = WeakReference(this)
             }
     }
-
-    private var accountComponent: AccountComponent? = null
-    private var accountInputComponent: AccountInComponent? = null
-    private var accountOutputComponent: AccountOutComponent? = null
-
-    fun getAccountOutApi(): AccountOutApi {
-        return accountOutputComponent
-            ?: DaggerAccountOutComponent
-                .create()
-                .apply { accountOutputComponent = this }
-    }
-
-    fun clear() {
-        accountComponent = null
-        accountInputComponent = null
-        accountOutputComponent = null
-    }
 }
 
 @PerFeature
@@ -98,14 +80,6 @@ interface AccountComponent {
     ]
 )
 interface AccountOutComponent : AccountOutApi
-
-@PerFeature
-@Component(
-    dependencies = [
-        TransactionOutApi::class,
-    ]
-)
-interface AccountInComponent : AccountInApi
 
 @Module
 interface AccountsRepositoryModule {
